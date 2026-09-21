@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/validation/2",
+  "title": "ValidationResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "command",
+    "status",
+    "summary",
+    "git_head",
+    "worktree_dirty"
+  ],
+  "properties": {
+    "schema": {
+      "const": "validation/2"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique id; approvals reference this."
+    },
+    "command": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cwd": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "passed",
+        "failed",
+        "skipped",
+        "unverified"
+      ]
+    },
+    "exit_code": {
+      "type": "integer"
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "summary": {
+      "type": "string"
+    },
+    "evidence_ref": {
+      "type": "string",
+      "description": "Path or content hash of the captured command output artifact."
+    },
+    "git_head": {
+      "type": "string",
+      "description": "Commit the command ran against; empty string if not a git repo."
+    },
+    "worktree_dirty": {
+      "type": "boolean"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Required when status is skipped or unverified."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "passed",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "exit_code",
+          "evidence_ref"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "passed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "exit_code": {
+            "const": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "skipped",
+              "unverified"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "reason"
+        ]
+      }
+    }
+  ]
+}

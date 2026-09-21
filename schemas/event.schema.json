@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/event/1",
+  "title": "Event",
+  "description": "Append-only audit/observability event. One JSON object per line (JSONL). Payloads must be redacted before write.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "session_id", "trace_id", "type", "ts"],
+  "properties": {
+    "schema": { "const": "event/1" },
+    "id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "trace_id": { "type": "string" },
+    "parent_run_id": { "type": "string" },
+    "run_id": { "type": "string" },
+    "agent": { "type": "string" },
+    "type": {
+      "enum": [
+        "stage.enter", "stage.exit",
+        "agent.start", "agent.end", "agent.fail",
+        "tool.request", "tool.allow", "tool.block", "tool.result",
+        "plan.created", "plan.invalidated",
+        "approval.requested", "approval.granted", "approval.denied", "approval.expired",
+        "validation.recorded", "review.recorded", "finding.raised",
+        "budget.warn", "budget.exhausted",
+        "injection.suspected", "secret.detected",
+        "memory.proposed", "memory.written"
+      ]
+    },
+    "ts": { "type": "string", "format": "date-time" },
+    "tokens_in": { "type": "integer", "minimum": 0 },
+    "tokens_out": { "type": "integer", "minimum": 0 },
+    "cost_usd": { "type": "number", "minimum": 0 },
+    "payload": { "type": "object" }
+  }
+}

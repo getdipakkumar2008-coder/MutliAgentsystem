@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/approval/1",
+  "title": "Approval",
+  "description": "A recorded human decision at a gate. Bound to plan_hash (G1) or to plan_hash + git_head + review/validation ids (G2). Any change to the bound hash invalidates it.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "session_id", "gate", "decision", "approver", "plan_hash", "decided_at"],
+  "properties": {
+    "schema": { "const": "approval/1" },
+    "id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "gate": { "enum": ["G1", "G2"] },
+    "decision": { "enum": ["granted", "denied"] },
+    "approver": { "type": "string" },
+    "plan_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "git_head": { "type": "string" },
+    "review_id": { "type": "string" },
+    "validation_ids": { "type": "array", "items": { "type": "string" } },
+    "scope": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Explicit actions covered, e.g. 'commit', 'push', 'open-pr'. Anything not listed is NOT approved."
+    },
+    "comment": { "type": "string" },
+    "decided_at": { "type": "string", "format": "date-time" },
+    "expires_at": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "gate": { "const": "G2" }, "decision": { "const": "granted" } }, "required": ["gate", "decision"] },
+      "then": { "required": ["git_head", "review_id", "validation_ids", "scope"] }
+    }
+  ]
+}

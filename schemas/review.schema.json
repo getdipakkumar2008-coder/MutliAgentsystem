@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/review/2",
+  "title": "Review",
+  "description": "verdict and blocking flags are DERIVED by code from reviewers[] and findings[]; models must not set them by opinion.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "verdict",
+    "reviewers",
+    "findings",
+    "stats"
+  ],
+  "properties": {
+    "schema": {
+      "const": "review/2"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique id; approvals reference this."
+    },
+    "verdict": {
+      "enum": [
+        "APPROVE",
+        "CHANGES_REQUESTED",
+        "INCOMPLETE"
+      ]
+    },
+    "reviewers": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "agent",
+          "run_id",
+          "status"
+        ],
+        "properties": {
+          "agent": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "failed",
+              "timeout"
+            ]
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "severity",
+          "file",
+          "evidence",
+          "impact",
+          "fix",
+          "verification",
+          "blocking"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "CRITICAL",
+              "HIGH",
+              "MEDIUM",
+              "LOW",
+              "INFO"
+            ]
+          },
+          "file": {
+            "type": "string"
+          },
+          "symbol_or_line": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "fix": {
+            "type": "string"
+          },
+          "verification": {
+            "enum": [
+              "confirmed",
+              "unverified",
+              "refuted"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "raised_by": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "severity": {
+                  "enum": [
+                    "CRITICAL",
+                    "HIGH"
+                  ]
+                },
+                "verification": {
+                  "enum": [
+                    "confirmed",
+                    "unverified"
+                  ]
+                }
+              },
+              "required": [
+                "severity",
+                "verification"
+              ]
+            },
+            "then": {
+              "properties": {
+                "blocking": {
+                  "const": true
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "verification": {
+                  "const": "refuted"
+                }
+              },
+              "required": [
+                "verification"
+              ]
+            },
+            "then": {
+              "properties": {
+                "blocking": {
+                  "const": false
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw",
+        "unique",
+        "confirmed",
+        "unverified",
+        "refuted"
+      ],
+      "properties": {
+        "raw": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unique": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confirmed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unverified": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "refuted": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "reviewers": {
+            "contains": {
+              "properties": {
+                "status": {
+                  "enum": [
+                    "failed",
+                    "timeout"
+                  ]
+                }
+              },
+              "required": [
+                "status"
+              ]
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "verdict": {
+            "const": "INCOMPLETE"
+          }
+        }
+      }
+    }
+  ]
+}

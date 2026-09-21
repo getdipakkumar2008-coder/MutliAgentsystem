@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "installed_at": "2026-09-20T16:00:54Z",
+  "settings": ".claude/settings.json",
+  "hooks": [
+    "pre-tool-use",
+    "post-tool-use",
+    "post-tool-use-failure",
+    "user-prompt-submit",
+    "session-start"
+  ],
+  "managed_files": {
+    ".claude/commands/approve.md": "86b2879d4f07ade80111ff7edeeff457262f56b1cfdee93d37e46bd724bffaad",
+    ".claude/commands/doctor.md": "ae2490cdd20d843bdf17b8c1d25b200d22a9d225578f57798171b2b392dca88d",
+    ".claude/commands/plan.md": "22a7aec04134281488c0598b682c0f2dcac8cf884712baa126c2fe7ba90494b2",
+    ".claude/commands/status.md": "a31ae6f510ebfefb5ab09917c2575cc34ed442c155475de23272cf880d92367d"
+  },
+  "python": "python"
+}
